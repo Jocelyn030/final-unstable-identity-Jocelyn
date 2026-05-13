@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Word to Sentence Interaction</title>
+
+  <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+    <div class="cursor cursor-left" id="cursorLeft"></div>
+<div class="cursor cursor-right" id="cursorRight"></div>
+
+  <main class="stage">
+    <a href="home page/homeindex.html" class="back back-left">← BACK</a>
+    <a href="home page/homeindex.html" class="back back-right">BACK →</a>
+
+
+
+   <div class="bg">
+      <img src="home page/mirror-transparent.png" alt="background frame left">
+      <img src="home page/mirror-transparent.png" alt="background frame right">
+    </div>
+
+    <div class="ui">
+
+      <section class="panel" aria-label="left panel">
+    <div class="safe-area" id="wordsLeft">
+
+         <button class="chip wordHover" data-word="dreaming" style="--x:44%; --y:46%;">Dreaming</button>
+         <button class="chip wordHover" data-word="creates"  style="--x:66%; --y:69%;">Creates</button>
+         <button class="chip wordHover" data-word="fire"     style="--x:40%; --y:92%;">Fire</button>
+         <button class="chip wordHover" data-word="illusion" style="--x:66%; --y:119%;">Illusion</button>
+         <button class="chip wordHover" data-word="reality"  style="--x:38%; --y:144%;">reality</button>
+</div>
+        <div class="sentenceBox hidden" id="sentenceLeft">
+  <p class="sentenceText" id="sentenceTextLeft"></p>
+</div>
+
+      </section>
+
+      <section class="panel" aria-label="right panel">
+    <div class="safe-area" id="wordsRight">
+
+          <p class="chipText wordHover" data-word="dreaming" style="--x:44%; --y:46%;">Dreaming</p>
+          <p class="chipText wordHover" data-word="creates" style="--x:66%; --y:69%;">Creates</p>
+          <p class="chipText wordHover" data-word="fire" style="--x:40%; --y:92%;">Fire</p>
+          <p class="chipText wordHover" data-word="illusion" style="--x:66%; --y:119%;">Illusion</p>
+          <p class="chipText wordHover" data-word="reality" style="--x:38%; --y:144%;">reality</p>
+        </div>
+        <div class="sentenceBox hidden" id="sentenceRight">
+  <p class="sentenceText" id="sentenceTextRight"></p>
+</div>
+
+
+        <div class="sentence hidden" id="sentenceBox">
+          <p id="sentenceText"></p>
+          <button class="back" id="backBtn" type="button">Back</button>
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>

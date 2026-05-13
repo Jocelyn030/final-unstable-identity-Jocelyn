@@ -1,0 +1,399 @@
+@font-face {
+  font-family: 'AdobeHandwritingErnie';
+  src: url('AdobeHandwritingErnie.otf') format('opentype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'AdobeHandwritingTiffany';
+  src: url('AdobeHandwritingTiffany.otf') format('opentype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+* { box-sizing: border-box; }
+
+
+body{
+  margin: 0;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: #050505;
+}
+
+.stage{
+  width: 90vw;
+  height: 85vh;
+  position: relative;
+}
+
+/* two identical images */
+.bg{
+  position: absolute;
+  inset: 0;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  padding: 20px;
+}
+
+.bg img{
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+/* right mirror faces left — two mirrors looking at each other */
+.bg img:last-child{
+  transform: scaleX(-1);
+}
+
+/* overlay panels align with bg */
+.ui{
+  position: absolute;
+  inset: 0;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 40px;
+  padding: 40px;
+}
+
+.panel{
+  position: relative;
+}
+
+/* IMPORTANT: this is the “inside the frame” region
+   top padding shorter -> content goes up */
+.safe-area{
+  position: absolute;
+  top: 82px;     /* 上边距短一点：你要更靠上就继续减 */
+  left: 105px;
+  right: 105px;
+  bottom: 140px;
+  pointer-events: none; /* allow clicks only on buttons */
+}
+
+/* small label like in your Figma */
+.panel-label{
+  position: absolute;
+  top: -34px;
+  left: 50%;
+  transform: translateX(-50%);
+  margin: 0;
+  color: #F2EFEF;
+  font-family: 'AdobeHandwritingErnie', cursive;
+  font-size: 20px;
+  letter-spacing: 2px;
+  opacity: 0.9;
+  pointer-events: none;
+}
+
+/* floating clickable word */
+.chip{
+  all: unset;                 /* 核武：清掉 button 的所有默认样式 */
+  position: absolute;
+  left: var(--x);
+  top: var(--y);
+  transform: translate(-50%, -50%);
+
+  font-family: 'AdobeHandwritingErnie', cursive;
+  font-size: 40px;
+  line-height: 1;
+  color: #F2EFEF;
+
+  cursor: pointer;
+  pointer-events: auto;
+  z-index: 50;
+}
+.chip:hover{ opacity: 0.92; }
+.chip.active{ text-decoration: underline; }
+
+/* floating text on right (not clickable) */
+.chipText{
+  position: absolute;
+  left: var(--x);
+  top: var(--y);
+  transform: translate(-50%, -50%);
+  margin: 0;
+  font-family: 'AdobeHandwritingErnie', cursive;
+  font-size: 40px;
+  line-height: 1;
+  color: #F2EFEF;
+  pointer-events: none;
+}
+
+/* sentence overlay on right */
+.sentenceBox{
+  position: absolute;
+  inset: 0;
+  margin-top: 20%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 120px 120px;  /* 控制离边框距离 */
+  text-align: center;
+}
+
+
+.sentenceText{
+  font-family: 'AdobeHandwritingErnie', cursive;
+  font-size: 20px;
+  line-height: 1.5;   /* 你要改的就在这里 */
+  text-align: center;
+  max-width: 320px;
+}
+
+/* back button */
+.back{
+  margin-top: 14px;
+  font-family: 'AdobeHandwritingErnie', cursive;
+  font-size: 18px;
+  padding: 6px 10px;
+  border-radius: 8px;
+  border: 1px solid rgba(242,239,239,0.6);
+  background: rgba(0,0,0,0.15);
+  color: #F2EFEF;
+  cursor: pointer;
+}
+
+.hidden{ display: none; }
+
+
+/* 让系统鼠标消失，换成我们自己的两个 cursor */
+.stage{
+  cursor: none;
+}
+
+/* 自定义鼠标 — 金色实心点，与 homepage 一致 */
+.cursor{
+  position: fixed;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  pointer-events: none;
+  transform: translate(-50%, -50%);
+  z-index: 99999;
+}
+
+.cursor-left{
+  background: rgba(212, 175, 55, 0.9);
+  box-shadow: 0 0 10px rgba(212,175,55,0.55), 0 0 24px rgba(212,175,55,0.2);
+}
+
+.cursor-right{
+  background: rgba(212, 175, 55, 0.30);
+  box-shadow: 0 0 8px rgba(212,175,55,0.25);
+}
+
+/* 右侧词现在要能 hover：取消 pointer-events none */
+.wordHover{
+  pointer-events: auto;
+}
+
+/* 句子盒子：覆盖在框内部 */
+.sentenceBox{
+  position: absolute;
+  top: 190px;     /* 你可以改：越小越靠上 */
+  left: 140px;
+  right: 140px;
+  bottom: 160px;
+  z-index: 20;
+  pointer-events: none;
+}
+
+.sentenceText{
+  margin: 0;
+  font-size: 22px;
+  line-height: 1.4;
+  color: #F2EFEF;
+}
+.sentenceText{
+  font-family:'AdobeHandwritingErnie', cursive;
+}
+
+.hidden{ display:none; }
+
+
+/* ===== HOME PAGE ===== */
+
+.home-body{
+  background: #712D3A;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.home-container{
+  text-align: center;
+  max-width: 900px;
+  padding: 20px;
+}
+
+.home-title{
+  font-family: 'AdobeHandwritingErnie', cursive;
+  font-size: clamp(36px, 5vw, 72px);
+  line-height: 1.05;
+  letter-spacing: 1.5px;
+  color: #F2EFEF;
+  margin-bottom: 20px;
+}
+
+.home-sub{
+  font-family: 'AdobeHandwritingErnie', cursive;
+  letter-spacing: 1px;
+  color: #F2EFEF;
+  opacity: 0.85;
+  margin-bottom: 30px;
+}
+
+.enter{
+  display: inline-block;
+  font-family: 'AdobeHandwritingErnie', cursive;
+  letter-spacing: 2px;
+  padding: 10px 20px;
+  border-radius: 999px;
+  border: 1px solid rgba(242,239,239,0.6);
+  color: #F2EFEF;
+  text-decoration: none;
+  transition: 0.2s ease;
+}
+
+.enter:hover{
+  background: rgba(0,0,0,0.25);
+}
+.dynamic-title span{
+  display: inline-block;
+  animation: breathe 8s ease-in-out infinite alternate;
+}
+
+.dynamic-title span:nth-child(1){
+  animation-delay: 0s;
+}
+
+.dynamic-title span:nth-child(3){
+  animation-delay: 1.2s;
+}
+
+@keyframes breathe{
+  0%{
+    letter-spacing: 1px;
+    transform: translateY(0);
+    opacity: 0.95;
+  }
+  50%{
+    letter-spacing: 3px;
+    transform: translateY(-4px);
+    opacity: 1;
+  }
+  100%{
+    letter-spacing: 1px;
+    transform: translateY(0);
+    opacity: 0.95;
+  }
+}
+/* ===== BACK BUTTON ===== */
+
+.back-home{
+  position: absolute;
+  top: 22px;
+  left: 28px;
+  z-index: 999;
+
+  font-family: 'AdobeHandwritingErnie', cursive;
+  letter-spacing: 2px;
+  font-size: 14px;
+
+  color: #F2EFEF;
+  text-decoration: none;
+  opacity: 0.75;
+  transition: 0.2s ease;
+}
+
+.back-home:hover{
+  opacity: 1;
+}
+/* ===== SYMMETRICAL BACK BUTTONS ===== */
+
+.back{
+  position: fixed;
+  top: 2vh;
+  z-index: 999;
+
+  font-family: 'AdobeHandwritingErnie', cursive;
+  letter-spacing: 2px;
+  font-size: 14px;
+  text-decoration: none;
+  color: #F2EFEF;
+  opacity: 0.7;
+  transition: 0.25s ease;
+}
+
+.back:hover{
+  opacity: 1;
+}
+
+/* left */
+.back-left{
+  left: 28px;
+}
+
+/* right */
+.back-right{
+  right: 28px;
+}
+
+
+
+
+/* ===== ARTICLE PAGE ===== */
+
+.article-body{
+  margin: 0;
+  min-height: 100vh;
+  background: #050505;
+  color: #F2EFEF;
+  font-family: 'AdobeHandwritingErnie', cursive;
+}
+
+.article-page{
+  width: min(980px, 92vw);
+  margin: 0 auto;
+  padding: 90px 0 80px;
+}
+
+.article-top{
+  text-align: center;
+  margin-bottom: 28px;
+}
+
+.article-h1{
+  margin: 0 0 10px 0;
+  font-size: clamp(34px, 5vw, 64px);
+  letter-spacing: 2px;
+  line-height: 1.05;
+}
+
+.article-meta{
+  margin: 0;
+  opacity: 0.8;
+  letter-spacing: 1px;
+  font-size: 16px;
+}
+
+.article-content{
+  border-top: 1px solid rgba(242,239,239,0.25);
+  padding-top: 22px;
+  font-family: 'AdobeHandwritingTiffany', cursive;
+  font-size: 20px;
+  line-height: 1.65;
+  letter-spacing: 0.6px;
+}
+
+.article-content p{
+  margin: 0 0 16px 0;
+  opacity: 0.95;
+}

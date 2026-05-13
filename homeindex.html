@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Unstable Identity</title>
+  <style>
+    @font-face {
+      font-family: 'AdobeHandwritingErnie';
+      src: url('../AdobeHandwritingErnie.otf') format('opentype');
+      font-weight: normal;
+      font-style: normal;
+    }
+    @font-face {
+      font-family: 'AdobeHandwritingTiffany';
+      src: url('../AdobeHandwritingTiffany.otf') format('opentype');
+      font-weight: normal;
+      font-style: normal;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: #050505;
+      cursor: none;
+    }
+
+    /* ── CURSORS ── */
+    .cursor {
+      position: fixed;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 9999;
+      transform: translate(-50%, -50%);
+    }
+    .cursor-a {
+      background: rgba(212, 175, 55, 0.9);
+      box-shadow: 0 0 10px rgba(212,175,55,0.55), 0 0 24px rgba(212,175,55,0.2);
+    }
+    .cursor-b {
+      background: rgba(212, 175, 55, 0.30);
+      box-shadow: 0 0 8px rgba(212,175,55,0.25);
+    }
+
+    /* ── AMBIENT CANVAS ── */
+    #ambient {
+      position: fixed;
+      inset: 0;
+      z-index: 1;
+      pointer-events: none;
+    }
+
+    /* ── MIRROR INSTANCES ── */
+    .mirror {
+      position: fixed;
+      top: 0;
+      left: 0;
+      pointer-events: none;
+      will-change: transform, opacity;
+      opacity: 0;
+    }
+    .mirror img {
+      display: block;
+      width: 100%;
+      height: 100%;
+      object-fit: fill;
+      pointer-events: none;
+      user-select: none;
+      -webkit-user-drag: none;
+    }
+
+    /* ── GRAIN ── */
+    #grain {
+      position: fixed;
+      inset: 0;
+      z-index: 80;
+      pointer-events: none;
+      opacity: 0.042;
+      background-repeat: repeat;
+      background-size: 256px 256px;
+    }
+
+    /* ── VIGNETTE ── */
+    .vignette {
+      position: fixed;
+      inset: 0;
+      z-index: 50;
+      pointer-events: none;
+      background:
+        radial-gradient(ellipse 46% 42% at 50% 50%,
+          rgba(0,0,0,0.58) 0%, rgba(0,0,0,0) 100%),
+        radial-gradient(ellipse 100% 100% at 50% 50%,
+          rgba(0,0,0,0) 48%, rgba(0,0,0,0.50) 100%);
+    }
+
+    /* ── TITLE ── */
+    .title-block {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      text-align: center;
+      z-index: 60;
+      pointer-events: auto;
+      opacity: 0;
+      animation: titleIn 3s ease 0.8s forwards;
+    }
+    @keyframes titleIn {
+      from { opacity: 0; transform: translate(-50%, -47%); }
+      to   { opacity: 1; transform: translate(-50%, -50%); }
+    }
+    .t1 {
+      display: block;
+      font-family: 'AdobeHandwritingErnie', cursive;
+      font-size: clamp(36px, 5vw, 78px);
+      letter-spacing: 6px;
+      color: #F2EFEF;
+      line-height: 1.1;
+      margin-bottom: 14px;
+    }
+    .t2 {
+      display: block;
+      font-family: 'AdobeHandwritingErnie', cursive;
+      font-size: clamp(16px, 1.8vw, 28px);
+      letter-spacing: 5px;
+      color: rgba(242,239,239,0.42);
+      margin-bottom: 46px;
+    }
+    .t3 {
+      display: block;
+      font-family: 'AdobeHandwritingErnie', cursive;
+      font-size: 15px;
+      letter-spacing: 3px;
+      color: rgba(242,239,239,0.60);
+      margin-bottom: 38px;
+    }
+    .enter {
+      display: inline-block;
+      font-family: 'AdobeHandwritingErnie', cursive;
+      font-size: 15px;
+      letter-spacing: 7px;
+      color: rgba(212,175,55,0.60);
+      text-decoration: none;
+      border: 1px solid rgba(212,175,55,0.18);
+      padding: 10px 30px;
+      border-radius: 999px;
+      transition: color 0.5s, border-color 0.5s, background 0.5s;
+      cursor: none;
+    }
+    .enter:hover {
+      color: rgba(212,175,55,1);
+      border-color: rgba(212,175,55,0.50);
+      background: rgba(212,175,55,0.07);
+    }
+
+    /* ── INTRO OVERLAY ── */
+    .intro-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 200;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      backdrop-filter: blur(22px);
+      -webkit-backdrop-filter: blur(22px);
+      background: rgba(5, 5, 5, 0.70);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.9s ease;
+    }
+    .intro-overlay.visible {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    .intro-content {
+      max-width: 580px;
+      padding: 0 32px;
+      text-align: center;
+    }
+    .intro-label {
+      display: block;
+      font-family: 'AdobeHandwritingErnie', cursive;
+      font-size: 11px;
+      letter-spacing: 5px;
+      color: rgba(212,175,55,0.60);
+      margin-bottom: 28px;
+    }
+    .intro-body {
+      font-family: 'AdobeHandwritingTiffany', cursive;
+      font-size: clamp(14px, 1.4vw, 19px);
+      line-height: 1.85;
+      letter-spacing: 0.8px;
+      color: rgba(242,239,239,0.82);
+      margin-bottom: 48px;
+    }
+    .intro-body p { margin-bottom: 20px; }
+    .intro-body p:last-child { margin-bottom: 0; }
+    .intro-divider {
+      width: 40px;
+      height: 1px;
+      background: rgba(212,175,55,0.30);
+      margin: 0 auto 28px;
+    }
+    .begin-btn {
+      display: inline-block;
+      font-family: 'AdobeHandwritingErnie', cursive;
+      font-size: 13px;
+      letter-spacing: 7px;
+      color: rgba(212,175,55,0.75);
+      text-decoration: none;
+      border: 1px solid rgba(212,175,55,0.25);
+      padding: 11px 34px;
+      border-radius: 999px;
+      background: none;
+      cursor: none;
+      transition: color 0.4s, border-color 0.4s, background 0.4s;
+    }
+    .begin-btn:hover {
+      color: rgba(212,175,55,1);
+      border-color: rgba(212,175,55,0.55);
+      background: rgba(212,175,55,0.08);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="cursor cursor-a" id="cursorA"></div>
+  <div class="cursor cursor-b" id="cursorB"></div>
+
+  <canvas id="ambient"></canvas>
+
+  <!-- mirrors inserted by JS -->
+
+  <div id="grain"></div>
+  <div class="vignette"></div>
+
+  <div class="title-block">
+    <span class="t1">Unstable Identity</span>
+    <span class="t2">and the self as constructed</span>
+    <span class="t3">Two cursors &nbsp;·&nbsp; One divided self</span>
+    <a href="#" class="enter" id="enterBtn">ENTER</a>
+  </div>
+
+  <!-- intro overlay -->
+  <div class="intro-overlay" id="introOverlay">
+    <div class="intro-content">
+      <span class="intro-label">ABOUT THIS WORK</span>
+      <div class="intro-body">
+        <p>Two cursors move through the same space simultaneously — one yours, one its mirror. They share a position in time but never the same intention.</p>
+        <p>This work asks: if a reflection acts on its own, which one is real? Hover over a word in one mirror and watch its meaning surface in the other — not as an answer, but as an echo.</p>
+        <p>Inspired by Jorge Luis Borges' <em>The Circular Ruins</em>, in which a man dreams another person into existence, only to discover he himself is someone else's dream. Identity here is not found — it is constructed, reflected, and always slightly out of reach.</p>
+      </div>
+      <div class="intro-divider"></div>
+      <button class="begin-btn" id="beginBtn">BEGIN</button>
+    </div>
+  </div>
+
+  <canvas id="noiseSrc" style="display:none;"></canvas>
+
+  <script>
+  (function () {
+
+    /* ─────────────────────────────────────────
+       MIRROR DEFINITIONS
+       hPct   = display height as % of viewport height
+       px/py  = % position of top-left corner (can be negative)
+       rot    = base rotation (degrees)
+       depth  = parallax strength AND z-layer indicator
+       opacity = base opacity
+       amp/freq/phase = drift oscillation params
+    ───────────────────────────────────────── */
+
+    /* native image ratio: 735 × 1092 */
+    const RATIO = 735 / 1092;
+
+    const MIRRORS = [
+      /* far background — large, upper left, very slow */
+      { hPct:80, px:-4,  py: 4,  rot:-5,  depth:.07, zIdx:2,  opacity:.58, amp:9,  freq:.000148, phase:0.0  },
+      /* foreground — largest, right side */
+      { hPct:92, px:57,  py: 0,  rot: 3,  depth:.22, zIdx:10, opacity:.88, amp:17, freq:.000182, phase:1.8  },
+      /* tiny, upper right, distant */
+      { hPct:26, px:82,  py: 2,  rot:-4,  depth:.06, zIdx:2,  opacity:.34, amp:5,  freq:.000220, phase:2.3  },
+      /* medium, upper center */
+      { hPct:52, px:30,  py: 5,  rot: 5,  depth:.13, zIdx:5,  opacity:.66, amp:12, freq:.000195, phase:4.5  },
+      /* large, left side, mid-layer */
+      { hPct:85, px:-7,  py:14,  rot: 2,  depth:.19, zIdx:8,  opacity:.78, amp:16, freq:.000162, phase:5.5  },
+      /* small, lower left, distant */
+      { hPct:36, px: 2,  py:58,  rot:-8,  depth:.05, zIdx:2,  opacity:.36, amp:7,  freq:.000128, phase:3.2  },
+      /* medium, lower right */
+      { hPct:60, px:66,  py:47,  rot:-6,  depth:.11, zIdx:4,  opacity:.56, amp:11, freq:.000172, phase:1.0  },
+      /* small, lower center */
+      { hPct:32, px:44,  py:63,  rot: 9,  depth:.15, zIdx:6,  opacity:.48, amp:9,  freq:.000208, phase:3.8  },
+      /* medium-large, top center, background */
+      { hPct:65, px:48,  py:-5,  rot:-2,  depth:.08, zIdx:3,  opacity:.50, amp:7,  freq:.000142, phase:6.2  },
+      /* small, lower left extra */
+      { hPct:44, px: 3,  py:67,  rot: 4,  depth:.10, zIdx:4,  opacity:.44, amp:8,  freq:.000165, phase:2.7  },
+    ];
+
+    /* ── grain ── */
+    const noiseSrc = document.getElementById('noiseSrc');
+    noiseSrc.width = noiseSrc.height = 256;
+    const nCtx = noiseSrc.getContext('2d');
+    const nId  = nCtx.createImageData(256, 256);
+    for (let i = 0; i < nId.data.length; i += 4) {
+      const v = Math.random() * 255 | 0;
+      nId.data[i] = nId.data[i+1] = nId.data[i+2] = v;
+      nId.data[i+3] = 255;
+    }
+    nCtx.putImageData(nId, 0, 0);
+    document.getElementById('grain').style.backgroundImage =
+      `url(${noiseSrc.toDataURL()})`;
+
+    /* ── ambient canvas ── */
+    const ambCvs = document.getElementById('ambient');
+    const ambCtx = ambCvs.getContext('2d');
+    function resizeAmb() { ambCvs.width = innerWidth; ambCvs.height = innerHeight; }
+    resizeAmb();
+    window.addEventListener('resize', resizeAmb);
+
+    /* orbs spread across viewport — shine through transparent mirror interiors */
+    const ORBS = [
+      { px:.08, py:.28, r:.14, freq:.000132, phase:0.0, col:'192,142,46' },
+      { px:.16, py:.65, r:.12, freq:.000158, phase:1.9, col:'158,112,34' },
+      { px:.04, py:.82, r:.09, freq:.000140, phase:3.3, col:'178,128,42' },
+      { px:.88, py:.22, r:.13, freq:.000148, phase:2.2, col:'186,136,44' },
+      { px:.76, py:.56, r:.11, freq:.000122, phase:4.6, col:'148,104,30' },
+      { px:.93, py:.75, r:.09, freq:.000168, phase:5.1, col:'168,118,38' },
+      { px:.38, py:.12, r:.08, freq:.000112, phase:1.1, col:'200,150,50' },
+      { px:.52, py:.80, r:.07, freq:.000178, phase:6.0, col:'172,124,40' },
+      { px:.62, py:.35, r:.10, freq:.000135, phase:0.8, col:'182,132,43' },
+    ];
+
+    function drawAmbient(t) {
+      const W = ambCvs.width, H = ambCvs.height;
+      ambCtx.fillStyle = '#050505';
+      ambCtx.fillRect(0, 0, W, H);
+      ORBS.forEach(o => {
+        const cx  = (o.px + Math.sin(t * o.freq         + o.phase) * .054) * W;
+        const cy  = (o.py + Math.cos(t * o.freq * .72   + o.phase * 1.28) * .044) * H;
+        const iv  = .065 + .052 * Math.sin(t * o.freq * 2.1 + o.phase);
+        const r   = o.r * Math.min(W, H);
+        const g   = ambCtx.createRadialGradient(cx, cy, 0, cx, cy, r);
+        g.addColorStop(0, `rgba(${o.col},${iv.toFixed(3)})`);
+        g.addColorStop(1, 'rgba(0,0,0,0)');
+        ambCtx.fillStyle = g;
+        ambCtx.fillRect(0, 0, W, H);
+      });
+    }
+
+    /* ── build mirror elements ── */
+    const mirrorEls = [];
+    const vignette  = document.querySelector('.vignette');
+
+    MIRRORS.forEach((cfg, i) => {
+      const el = document.createElement('div');
+      el.className = 'mirror';
+      el.style.zIndex = cfg.zIdx;
+
+      /* subtle blur for far-background mirrors (depth < 0.09) */
+      const blurPx = Math.max(0, (0.09 - cfg.depth) * 7).toFixed(1);
+      if (parseFloat(blurPx) > 0) el.style.filter = `blur(${blurPx}px)`;
+
+      const img = document.createElement('img');
+      img.src = 'mirror-transparent.png';
+      img.draggable = false;
+      el.appendChild(img);
+
+      document.body.insertBefore(el, vignette);
+      mirrorEls.push({ el, cfg, i });
+    });
+
+    /* ── mouse ── */
+    let mxT = innerWidth / 2, myT = innerHeight / 2;
+    let mx  = mxT, my = myT;
+    document.addEventListener('mousemove', e => { mxT = e.clientX; myT = e.clientY; });
+
+    const curA = document.getElementById('cursorA');
+    const curB = document.getElementById('cursorB');
+
+    /* ── main loop ── */
+    let startT    = null;
+    let grainTick = 0;
+
+    function loop(ts) {
+      if (!startT) startT = ts;
+      const age = ts - startT;
+
+      /* smooth cursors */
+      mx += (mxT - mx) * .10;
+      my += (myT - my) * .10;
+      curA.style.left = mx + 'px';
+      curA.style.top  = my + 'px';
+      curB.style.left = (innerWidth  - mx) + 'px';
+      curB.style.top  = my + 'px';
+
+      /* normalised mouse from center  −1 … 1 */
+      const pxN = (mxT / innerWidth  - .5) * 2;
+      const pyN = (myT / innerHeight - .5) * 2;
+
+      mirrorEls.forEach(({ el, cfg, i }) => {
+        /* display size based on hPct */
+        const dispH = innerHeight * cfg.hPct / 100;
+        const dispW = dispH * RATIO;
+        el.style.width  = dispW + 'px';
+        el.style.height = dispH + 'px';
+
+        /* base position (top-left corner) */
+        const bx = cfg.px / 100 * innerWidth;
+        const by = cfg.py / 100 * innerHeight;
+
+        /* autonomous drift — each mirror has unique frequency + phase */
+        const dx  =  Math.sin(ts * cfg.freq          + cfg.phase) * cfg.amp;
+        const dy  =  Math.cos(ts * cfg.freq * .71    + cfg.phase * 1.33) * cfg.amp * .78;
+        const dr  =  Math.sin(ts * cfg.freq * .48    + cfg.phase * .84)  * 1.5;
+
+        /* parallax — deeper = more movement = closer feel */
+        const px  = -pxN * cfg.depth * 80;
+        const py  = -pyN * cfg.depth * 55;
+
+        el.style.transform =
+          `translate(${bx + dx + px}px, ${by + dy + py}px) rotate(${cfg.rot + dr}deg)`;
+
+        /* staggered fade-in then slow opacity breathing */
+        const fadeIn  = Math.min(1, Math.max(0, (age - i * 260) / 2600));
+        const breathe = .76 + .24 * Math.sin(ts * .000098 + cfg.phase * 1.6);
+        el.style.opacity = cfg.opacity * breathe * fadeIn;
+      });
+
+      drawAmbient(ts);
+
+      /* grain shift every 4 frames */
+      grainTick++;
+      if (grainTick % 4 === 0) {
+        const g = document.getElementById('grain');
+        g.style.backgroundPosition =
+          `${Math.random() * 256 | 0}px ${Math.random() * 256 | 0}px`;
+      }
+
+      requestAnimationFrame(loop);
+    }
+
+    requestAnimationFrame(loop);
+
+    /* ── Intro overlay ── */
+    const enterBtn  = document.getElementById('enterBtn');
+    const overlay   = document.getElementById('introOverlay');
+    const beginBtn  = document.getElementById('beginBtn');
+
+    enterBtn.addEventListener('click', e => {
+      e.preventDefault();
+      overlay.classList.add('visible');
+    });
+
+    beginBtn.addEventListener('click', () => {
+      overlay.style.transition = 'opacity 0.6s ease';
+      overlay.style.opacity = '0';
+      setTimeout(() => { window.location.href = '../index.html'; }, 620);
+    });
+
+  })();
+  </script>
+</body>
+</html>

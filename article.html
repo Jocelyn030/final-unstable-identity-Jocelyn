@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+
+  <link rel="stylesheet" href="style.css">
+  <title>Article</title>
+</head>
+
+<body class="article-body">
+
+  <!-- symmetrical nav -->
+  <a href="home page/homeindex.html" class="back back-left">← HOME</a>
+  <a href="index.html" class="back back-right">INTERACTION →</a>
+
+  <main class="article-page">
+    <header class="article-top">
+      <h1 class="article-h1" id="articleH1">TITLE</h1>
+      <p class="article-meta" id="articleMeta">Unstable identity and the self as constructed</p>
+    </header>
+
+    <section class="article-content" id="articleContent">
+      <p>Loading…</p>
+    </section>
+  </main>
+
+  <script>
+    // Read query param: ?word=dreaming
+    const params = new URLSearchParams(window.location.search);
+    const key = (params.get("word") || "dreaming").toLowerCase();
+
+    // You fill these texts
+    const articles = {
+      dreaming: {
+  title: "Dreaming",
+  paras: [
+
+`No one saw him disembark in the unanimous night. The taciturn man arrived at the ruined temple with a single purpose: he knew that his immediate obligation was to dream.`,
+
+`He wanted to dream a man into existence. This magical project exhausted his entire mind; he sought a soul worthy of participating in the universe.`,
+
+`At first, his dreams were chaotic; then in a short while they became ordered and deliberate. He dismissed the illusory multitude and kept only one pupil, shaping him with patience and precision.`,
+
+`Night after night he dreamed the young man into being — the heart, the organs, the eyelids, the innumerable hair — until the dreamed body lay complete, asleep within reality.`,
+
+`The god of Fire revealed that the phantom would live as a real man, believed by all creatures. Only Fire and the dreamer would know his true nature.`,
+
+`With relief, with humiliation, with terror, he understood that he himself was also an illusion — that someone else was dreaming him.`
+
+  ]
+},
+      creates: {
+  title: "Creates",
+  paras: [
+
+`In The Circular Ruins, creation begins in the mind. The dreamer constructs a human being piece by piece, revealing that identity is assembled through intention and perception rather than born complete.`,
+
+`In The Garden of Forking Paths, every decision generates diverging futures. Time does not flow in a single line; each choice creates simultaneous realities.`,
+
+`In The Book of Sand, the infinite book resists boundaries and order. Its endless pages create a structure beyond comprehension, exposing the limits of human understanding.`,
+
+`Creation is not limited to making objects. It produces realities, possibilities, and structures through which existence is understood.`
+
+  ]
+},
+      ffire: {
+  title: "Fire",
+  paras: [
+
+`In The Circular Ruins, fire reveals what cannot burn. The dreamed body passes through flame unharmed, exposing the boundary between illusion and material reality.`,
+
+`Fire functions not as destruction but as revelation. It distinguishes what is constructed from what is believed to be real.`,
+
+`The dreamer later walks into the flames and feels no pain. In that moment, he understands the truth: he too is a projection within another dream.`,
+
+`Fire does not annihilate existence; it exposes its hidden structure.`
+
+  ]
+},
+      illusion: {
+  title: "Illusion",
+  paras: [
+
+`In The Circular Ruins, the dreamer discovers that his own existence is an illusion. The boundary between creator and creation dissolves.`,
+
+`In The Book of Sand, the infinite book defies logic and sequence. Its shifting pages destabilize the reader’s sense of order and reality.`,
+
+`Illusion does not simply deceive; it reveals that stability itself may be a construct of perception.`,
+
+`What we believe to be solid and continuous may only be a projection shaped by memory, language, and attention.`
+
+  ]
+},
+    reality: {
+  title: "Reality",
+  paras: [
+
+`In The Garden of Forking Paths, reality is not singular. Time branches into multiple, simultaneous futures, each as real as the others.`,
+
+`In The Circular Ruins, the dreamed man becomes real because others believe he is real. Perception stabilizes existence.`,
+
+`Reality emerges through recognition, belief, and interpretation rather than through fixed material certainty.`,
+
+`What we call reality may be a shared agreement shaped by perception, memory, and possibility.`
+
+  ]
+},
+    };
+
+    const data = articles[key] || articles.dreaming;
+
+    document.getElementById("articleH1").textContent = data.title;
+    document.getElementById("articleContent").innerHTML =
+      data.paras.map(t => `<p>${t}</p>`).join("");
+  </script>
+
+</body>
+</html>
